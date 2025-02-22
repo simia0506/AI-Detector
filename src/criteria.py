@@ -445,3 +445,34 @@ def extract_features(text):
     features["formality"] = detect_formality(processed_text)
     
     return features
+
+
+# UPDATE THIS LATER
+def is_ai_generated(text):
+    # Extract features from the text
+    features = extract_features(text)
+    
+    # Define a scoring system based on feature values
+    # You can adjust the weights based on empirical analysis or experimentation
+    score = 0
+
+    # Example weights: These should be fine-tuned for your model
+    score += features["ai_phrase_count"] * 0.2  # AI phrase count
+    score += features["sentiment_compound"] * 0.1  # Sentiment score (neutral or positive for AI-generated)
+    score += features["sentence_length_variation"] * 0.05  # Less variation may indicate AI
+    score += features["sentence_complexity"] * 0.15  # Simpler sentences may indicate AI
+    score += features["sentence_starter_variation"] * 0.1  # Less variety in sentence starters may indicate AI
+    score += features["subordinate_clause_ratio"] * 0.1  # Fewer subordinate clauses could indicate AI
+    score += features["sentence_structure_pattern"] * 0.05  # More repetitive sentence structure may indicate AI
+    score += features["perplexity"] * 0.05  # AI text tends to have lower perplexity
+    score += features["ai_keyword_count"] * 0.1  # Count of AI-specific keywords
+    score += features["lemma_ratio"] * 0.05  # Unique lemmas ratio
+    score += features["formality"] * 0.05  # Formality score (AI text may be more formal)
+
+    # Normalize score to be between 0 and 100 (as percentage)
+    normalized_score = (score / 2)  # You may need to adjust this based on the feature weightings
+
+    # Ensure score is between 0 and 100
+    percentage = max(0, min(100, normalized_score))
+
+    return percentage

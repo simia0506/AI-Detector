@@ -111,111 +111,178 @@
 # print(classification_report(y_test, y_pred))
 
 
+# import pandas as pd
+# import os
+# from sklearn.model_selection import train_test_split
+# from sklearn.linear_model import LogisticRegression
+# from sklearn.metrics import accuracy_score, classification_report
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from data_processing import process_dataset, extract_features  # Assuming extract_features is defined elsewhere
+# import numpy as np  # For random sampling
+
+# # Define paths
+# script_dir = os.path.dirname(os.path.realpath(__file__))  # Get the folder where train.py is located
+# data_file_path = os.path.join(script_dir, '../ai_vs_human_dataset.csv')  # Path to dataset
+
+# # Check if the file exists before proceeding
+# if not os.path.exists(data_file_path):
+#     raise FileNotFoundError(f"Dataset file not found: {data_file_path}")
+
+# # Debugging statement to confirm data file existence
+# print(f"Data file found: {data_file_path}")
+
+# # Load the full dataset
+# try:
+#     processed_data = pd.read_csv(data_file_path)
+#     print(f"Processed data loaded: {processed_data.shape[0]} rows")
+# except Exception as e:
+#     print(f"Error loading processed data: {e}")
+#     exit()
+
+# # Randomly sample 1/4 of the data
+# sampled_data = processed_data.sample(frac=0.25, random_state=42)  # Adjust the fraction for the desired amount (0.25 = 1/4)
+
+# print(f"Sampled {len(sampled_data)} rows from the dataset.")
+
+# # Ensure the required columns are present (if the process_dataset function expects specific ones)
+# if 'text' not in sampled_data.columns or 'generated' not in sampled_data.columns:
+#     raise ValueError("Expected columns 'text' and 'generated' are missing in the sampled data.")
+
+# # Preprocessing: Extract features using the extracted features or vectorizer
+# X_vals = sampled_data['text']
+# y_vals = sampled_data['generated']
+
+# try:
+#     vectorizer = TfidfVectorizer(stop_words='english')  # Removing common English stop words
+#     X_vals_transformed = vectorizer.fit_transform(X_vals)  # Transform the text data
+#     print("Data vectorized successfully.")
+# except Exception as e:
+#     print(f"Error during vectorization: {e}")
+#     exit()
+
+# # Split data into train and test sets
+# try:
+#     X_train, X_test, y_train, y_test = train_test_split(X_vals_transformed, y_vals, test_size=0.25, random_state=0)
+#     print("Data split into train and test sets.")
+# except Exception as e:
+#     print(f"Error during data split: {e}")
+#     exit()
+
+# # Train a Logistic Regression classifier
+# try:
+#     classifier = LogisticRegression(random_state=0, max_iter=1000)
+#     classifier.fit(X_train, y_train)
+#     print("Classifier trained successfully.")
+# except Exception as e:
+#     print(f"Error during model training: {e}")
+#     exit()
+
+# # Predict on the test set
+# try:
+#     y_pred = classifier.predict(X_test)
+#     print("Predictions made on test set.")
+# except Exception as e:
+#     print(f"Error during prediction: {e}")
+#     exit()
+
+# # Print accuracy and classification report
+# try:
+#     print("Accuracy:", accuracy_score(y_test, y_pred))
+#     print(classification_report(y_test, y_pred))
+# except Exception as e:
+#     print(f"Error during evaluation: {e}")
+#     exit()
+
+# # Now, process the dataset and use the trained model for predictions
+# output_file_path = os.path.join(script_dir, 'predicted_output.csv')
+
+# # Use the classifier to process data, predict labels and save the results
+# def process_and_predict(input_df, output_fp, classifier, vectorizer):
+#     try:
+#         # Ensure that the input dataframe has the correct columns
+#         print(f"Processing input data with {input_df.shape[0]} rows.")
+        
+#         # Feature extraction using the same vectorizer as training
+#         X_vals = vectorizer.transform(input_df['text'])  # Transform new text data into the same feature space
+
+#         # Predict labels using the trained classifier
+#         predictions = classifier.predict(X_vals)
+        
+#         # Add predictions as a new column
+#         input_df['Predicted_Label'] = predictions
+
+#         # Save the dataframe with predictions
+#         input_df.to_csv(output_fp, index=False)
+#         print(f"Processed dataset saved to {output_fp}")
+#     except Exception as e:
+#         print(f"Error during prediction and saving: {e}")
+
+# # Now, process the dataset and get predictions
+# process_and_predict(sampled_data, output_file_path, classifier, vectorizer)
+
+
 import pandas as pd
-import os
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report
-from sklearn.feature_extraction.text import TfidfVectorizer
-from data_processing import process_dataset, extract_features  # Assuming extract_features is defined elsewhere
-import numpy as np  # For random sampling
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, accuracy_score
+import joblib  # To save the trained model
+from criteria import extract_features  # Import your feature extraction function
 
-# Define paths
-script_dir = os.path.dirname(os.path.realpath(__file__))  # Get the folder where train.py is located
-data_file_path = os.path.join(script_dir, '../ai_vs_human_dataset.csv')  # Path to dataset
+# Load the dataset
+df = pd.read_csv('../ai_vs_human_dataset.csv')
 
-# Check if the file exists before proceeding
-if not os.path.exists(data_file_path):
-    raise FileNotFoundError(f"Dataset file not found: {data_file_path}")
+# Check the columns
+print("Columns in dataset:", df.columns)
 
-# Debugging statement to confirm data file existence
-print(f"Data file found: {data_file_path}")
+# Create a function to process 100 samples at a time
+def process_batch(batch_size=100):
+    # Select a random subset of the dataset
+    df_sample = df.sample(n=batch_size, random_state=42)  # Process only 100 samples at a time
 
-# Load the full dataset
-try:
-    processed_data = pd.read_csv(data_file_path)
-    print(f"Processed data loaded: {processed_data.shape[0]} rows")
-except Exception as e:
-    print(f"Error loading processed data: {e}")
-    exit()
+    # Check the sample size
+    print(f"Sample size: {len(df_sample)}")
 
-# Randomly sample 1/4 of the data
-sampled_data = processed_data.sample(frac=0.25, random_state=42)  # Adjust the fraction for the desired amount (0.25 = 1/4)
+    # Assuming the dataset has columns: 'text' (the text sample) and 'generated' (either '1' for AI, '0' for Human)
+    X = df_sample['text']
+    y = df_sample['generated']  # 'generated' is assumed to be binary (1 = AI, 0 = Human)
 
-print(f"Sampled {len(sampled_data)} rows from the dataset.")
+    # Convert the text data into feature vectors using the extract_features function
+    X_features = X.apply(lambda text: extract_features(text))  # Uses your extract_features function
 
-# Ensure the required columns are present (if the process_dataset function expects specific ones)
-if 'text' not in sampled_data.columns or 'generated' not in sampled_data.columns:
-    raise ValueError("Expected columns 'text' and 'generated' are missing in the sampled data.")
+    # Flatten the list of dictionaries into a DataFrame
+    # Convert each dictionary into a row of values
+    X_df = pd.DataFrame(list(X_features))
 
-# Preprocessing: Extract features using the extracted features or vectorizer
-X_vals = sampled_data['text']
-y_vals = sampled_data['generated']
+    # Check if the DataFrame has any missing values
+    if X_df.isnull().values.any():
+        print("Warning: Missing values detected in features, filling with 0s.")
+        X_df = X_df.fillna(0)  # Fill missing values with 0
 
-try:
-    vectorizer = TfidfVectorizer(stop_words='english')  # Removing common English stop words
-    X_vals_transformed = vectorizer.fit_transform(X_vals)  # Transform the text data
-    print("Data vectorized successfully.")
-except Exception as e:
-    print(f"Error during vectorization: {e}")
-    exit()
+    # Ensure X_df contains only numerical values
+    X_df = X_df.apply(pd.to_numeric, errors='coerce').fillna(0)  # Convert non-numeric values to 0
 
-# Split data into train and test sets
-try:
-    X_train, X_test, y_train, y_test = train_test_split(X_vals_transformed, y_vals, test_size=0.25, random_state=0)
-    print("Data split into train and test sets.")
-except Exception as e:
-    print(f"Error during data split: {e}")
-    exit()
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X_df, y, test_size=0.2, random_state=42)
 
-# Train a Logistic Regression classifier
-try:
-    classifier = LogisticRegression(random_state=0, max_iter=1000)
-    classifier.fit(X_train, y_train)
-    print("Classifier trained successfully.")
-except Exception as e:
-    print(f"Error during model training: {e}")
-    exit()
+    # Initialize the model (Random Forest Classifier here)
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
 
-# Predict on the test set
-try:
-    y_pred = classifier.predict(X_test)
-    print("Predictions made on test set.")
-except Exception as e:
-    print(f"Error during prediction: {e}")
-    exit()
+    # Train the model using the feature vectors extracted from the text
+    model.fit(X_train, y_train)
 
-# Print accuracy and classification report
-try:
-    print("Accuracy:", accuracy_score(y_test, y_pred))
+    # Evaluate the model
+    y_pred = model.predict(X_test)
+
+    # Print the classification report and accuracy
+    print("Classification Report:")
     print(classification_report(y_test, y_pred))
-except Exception as e:
-    print(f"Error during evaluation: {e}")
-    exit()
+    print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}")
 
-# Now, process the dataset and use the trained model for predictions
-output_file_path = os.path.join(script_dir, 'predicted_output.csv')
+    # Save the trained model to a file
+    joblib.dump(model, 'ai_detection_model.pkl')
 
-# Use the classifier to process data, predict labels and save the results
-def process_and_predict(input_df, output_fp, classifier, vectorizer):
-    try:
-        # Ensure that the input dataframe has the correct columns
-        print(f"Processing input data with {input_df.shape[0]} rows.")
-        
-        # Feature extraction using the same vectorizer as training
-        X_vals = vectorizer.transform(input_df['text'])  # Transform new text data into the same feature space
+    # Optionally, save the feature extraction function as well
+    joblib.dump(extract_features, 'feature_extraction_function.pkl')
 
-        # Predict labels using the trained classifier
-        predictions = classifier.predict(X_vals)
-        
-        # Add predictions as a new column
-        input_df['Predicted_Label'] = predictions
-
-        # Save the dataframe with predictions
-        input_df.to_csv(output_fp, index=False)
-        print(f"Processed dataset saved to {output_fp}")
-    except Exception as e:
-        print(f"Error during prediction and saving: {e}")
-
-# Now, process the dataset and get predictions
-process_and_predict(sampled_data, output_file_path, classifier, vectorizer)
+# Process a batch of 100 samples at a time
+process_batch(batch_size=100)
