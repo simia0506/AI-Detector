@@ -106,6 +106,8 @@ def common_ai_phrases(text):
     return count
 
 # def sentence_structure_variation(text):
+
+    
 # def perplexity_level(text):
     # ai has low purplexity (predictable)
 
