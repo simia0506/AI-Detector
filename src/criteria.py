@@ -1,6 +1,6 @@
 # nltk.download('vader_lexicon') // sentiment analysis
 
-
+import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.tag import pos_tag
@@ -14,6 +14,11 @@ from nltk import pos_tag
 
 # for repetition
 from collections import Counter
+from preprocess import preprocess_text, seperate_by_sentence
+import math
+from nltk.util import bigrams
+from nltk import FreqDist
+from nltk.probability import MLEProbDist
 
 ai_keywords = [
     "adhere",
@@ -106,6 +111,8 @@ def sentence_length_variation(text):
 
 def common_ai_phrases(text):
     count = 0
+    if isinstance(text, list):
+        text = " ".join(text)
     text = text.lower()
     for i in ai_phrases:
         count += text.count(i)
@@ -138,8 +145,6 @@ def sentence_complexity(text):
         for score in complexity_scores:
             total_complexity += score
         return total_complexity / len(complexity_scores)
-
-
 # - AI-generated sentences are often less complex with fewer unique parts of speech (e.g., adjectives, adverbs).
 # - Human-written text is typically more diverse, involving multiple sentence structures and a wide range of vocabulary and grammatical elements.
 
@@ -225,6 +230,7 @@ def analyze_sentence_structure(text):
 def perplexity_level(text):
     # ai has low purplexity (predictable)
     #tokenize input text
+    perplexity = 0
     tokens = nltk.word_tokenize(text)
 
     #Generate bigrams from tokens - pairs of 2 words
@@ -234,7 +240,7 @@ def perplexity_level(text):
     fdist = FreqDist(bigram_list)
 
     #create a bigram model using the Max likelihood estimation (MLE)
-    biggram_model = MLEProbDist(fdist)
+    bigram_model = MLEProbDist(fdist)
 
     preplexity = 0.0
     n = len(tokens)
@@ -245,7 +251,7 @@ def perplexity_level(text):
         curr = tokens [i]
 
         #get the prob of the bigram
-        prob = bigram_model.prob(prev, curr)
+        prob = bigram_model.prob((prev, curr))
 
         #if the prob is 0, assign a little value to avoid math.log(0)
         if prob == 0:
@@ -259,20 +265,10 @@ def perplexity_level(text):
 
     return perplexity
 
-def repetition(text):
-    splittext = text.split()
-    counts = Counter(splittext)
-
-    repeated_words = {}
-    for i, frequency in counts.items():
-        if frequency > 1:
-            repeated_words[i] = frequency
-    return repeated_words
 
 
 # REMOVE STOPWORDS
 def lemmatization(text):
-    def lemmatization(text):
     doc = nlp(text)
     lemm_words = []
 
@@ -297,10 +293,10 @@ def detect_formality(text):
 
     for token in doc:
         if token.is_alpha:
-            word_count[token.text.lower()] += 1
+            word_counter[token.text.lower()] += 1
     
     formal = 0
-    for work in formal_words:
+    for word in formal_words:
         if word in word_counter:
             formal += word_counter[word]
     
@@ -309,7 +305,7 @@ def detect_formality(text):
         if word in word_counter:
             informal += word_counter[word]
     
-    prnoun = 0
+    pronoun = 0
     for token in doc:
         if token.pos == "PRON":
             pronoun += 1
@@ -330,70 +326,122 @@ def detect_formality(text):
     
     return formality_score
 
-def repetition(text):
-    if type(text) == list:  # check if list
-        splittext = text  # if its a list use it directly
-    else:
-        splittext = text.split() # other wise split
+# def repetition(text):
+#     if type(text) == list:  # check if list
+#         splittext = text  # if its a list use it directly
+#     else:
+#         splittext = text.split() # other wise split
 
-    counts = Counter(text)
-    repeated_words = {}
+#     counts = Counter(text)
+#     repeated_words = {}
 
-    for i, frequency in counts.items():
-        if frequency > 1:
-            repeated_words[i] = frequency
-    return repeated_words
+#     for i, frequency in counts.items():
+#         if frequency > 1:
+#             repeated_words[i] = frequency
+#     return repeated_words
 
 def common_ai_keywords(text):
 
     count = 0
+    if isinstance(text, list):
+        text = " ".join(text)
     text = text.lower()
     for i in ai_keywords:
         count += text.count(i)
     return count
 
+# def extract_features(text):
+#     #dictionary to store the feature values
+#     features = {}
+
+#     #sentiment
+#     sentiment = sentiment_analysis(text)
+#     #compund is a single number between -1 and 1 that gives the overall sentiment of the text
+#     #-1 => negative, 0 => neutral, +1 => positive
+#     features["sentinment_compound"] = sentiment["compound"]
+
+#     #AI phrase count
+#     phrase_count = common_ai_phrases(text)
+#     features["ai_phrase_count"] = phrase_count
+
+#     #AI keyword count
+#     features["ai_keyword_count"] = common_ai_keywords(text)
+
+#     #Perplexity
+#     features["perplexity"] = perplexity_level(text)
+
+#     #formality
+#     features["formality"] = detect_formality(text)
+
+#     #lemmatization score (ratio of unique lemmas)
+#     features["lemma_ratio"] = lemmatization(text)
+
+#     #sentence length variation
+#     features["sentence_length_variation"] = sentence_length_variation(text)
+
+#     #sentence complexity
+#     features["sentence_complexity"] = sentence_complexity(text)
+
+#     #sentence starter variation
+#     features["sentence_starter_variation"] = sentence_starter_variation(text)
+
+#     #subordinate clause ratio
+#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(text)
+
+#     #sentence structure pattern
+#     features["sentence_structure_pattern"] = sentence_structure_pattern(text)
+
+# def extract_features(text):
+#     # First, define raw text and processed text (after stopword removal)
+#     raw_text = text
+#     processed_text = preprocess_text(text)  # Assumes this function removes stopwords and returns a clean string
+
+#     features = {}
+
+#     # Features computed on the raw (unprocessed) text:
+#     features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
+#     features["sentence_length_variation"] = sentence_length_variation(raw_text)
+#     features["sentence_complexity"] = sentence_complexity(raw_text)
+#     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
+#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
+#     features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
+#     features["perplexity"] = perplexity_level(raw_text)
+#     features["ai_phrase_count"] = common_ai_phrases(raw_text)
+
+#     # Features computed on the processed text (after stopword removal):
+#     features["ai_keyword_count"] = common_ai_keywords(processed_text)
+#     features["lemma_ratio"] = lemmatization(processed_text)
+#     features["formality"] = detect_formality(processed_text)
+
+#     return features
+
+
+#     return features
+
 def extract_features(text):
-    #dictionary to store the feature values
+    # Raw text for features computed before stopword removal.
+    raw_text = text
+    
+    # Process text: preprocess_text returns a list of tokens (stopwords removed).
+    processed_tokens = preprocess_text(text)
+    # Join tokens into a string for functions that expect a string.
+    processed_text = " ".join(processed_tokens)
+    
     features = {}
-
-    #sentiment
-    sentiment = sentiment_analysis(text)
-    #compund is a single number between -1 and 1 that gives the overall sentiment of the text
-    #-1 => negative, 0 => neutral, +1 => positive
-    feaures["sentinment_compound"] = sentiment["compound"]
-
-    #AI phrase count
-    phrase_count = common_ai_phrases(text)
-    features["ai_phrase_count"] = phrase count
-
-    #AI keyword count
-    features["ai_keyword_count"] = common_ai_keywords(text)
-
-    #Perplexity
-    features["perplexity"] = perplexity_level(text)
-
-    #formality
-    features["formality"] = detect_formality(text)
-
-    #lemmatization score (ratio of unique lemmas)
-    features["lemma_ratio"] = lemmatization(text)
-
-    #sentence length variation
-    features["sentence_length_variation"] = sentence_length_variation(text)
-
-    #sentence complexity
-    features["sentence_complexity"] = sentence_complexity(text)
-
-    #sentence starter variation
-    features["sentence_starter_variation"] = sentence_starter_variation(text)
-
-    #subordinate clause ratio
-    features["subordinate_clause_ratio"] = subordinate_clause_ratio(text)
-
-    #sentence structure pattern
-    features["sentence_structure_pattern"] = sentence_structure_pattern(text)
-
-
-
-
+    
+    # Features computed on raw (unprocessed) text:
+    features["ai_phrase_count"] = common_ai_phrases(raw_text)  # Compute AI phrase count on raw text
+    features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
+    features["sentence_length_variation"] = sentence_length_variation(raw_text)
+    features["sentence_complexity"] = sentence_complexity(raw_text)
+    features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
+    features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
+    features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
+    features["perplexity"] = perplexity_level(raw_text)
+    
+    # Features computed on processed text (after stopword removal):
+    features["ai_keyword_count"] = common_ai_keywords(processed_text)
+    features["lemma_ratio"] = lemmatization(processed_text)
+    features["formality"] = detect_formality(processed_text)
+    
     return features
