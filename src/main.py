@@ -1,7 +1,8 @@
 import pandas as pd
 import nltk
+# nltk.download('averaged_perceptron_tagger') // pos tags
 from preprocess import preprocess_text, seperate_by_sentence
-from criteria import sentence_length_variation, sentiment_analysis, common_ai_keywords, common_ai_phrases, repetition
+from criteria import sentence_length_variation, sentiment_analysis, common_ai_keywords, common_ai_phrases, repetition, analyze_sentence_structure
 
 data = {
         'text': [
@@ -40,6 +41,16 @@ for i, text in enumerate(data['text']):
     
     print(f"Text {i + 1}: {ai_phrase_count} AI-related phrases found, {ai_keyword_count} AI-related keywords found")
 
+print()
+print("SENTENCE STRUCTURE ANALYSIS")
+print()
+
+for index, row in df.iterrows():
+    text = row['text']
+    analysis_result = analyze_sentence_structure(text)
+    print(f"Text: {text}")
+    print(f"Sentence Structure Analysis: {analysis_result}")
+    print("=" * 50)
 
 
 
