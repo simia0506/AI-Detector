@@ -5,6 +5,10 @@ import statistics
 import spacy
 nlp = spacy.load("en_core_web_sm")
 
+
+# for repetition
+from collections import Counter
+
 ai_keywords = [
     "adhere",
     "beacon",
@@ -104,14 +108,40 @@ def common_ai_phrases(text):
 # def sentence_structure_variation(text):
 # def perplexity_level(text):
     # ai has low purplexity (predictable)
-# def repetition(text):
+
+def repetition(text):
+    splittext = text.split()
+    counts = Counter(splittext)
+
+    repeated_words = {}
+    for i, frequency in counts.items():
+        if frequency > 1:
+            repeated_words[i] = frequency
+    return repeated_words
+
+        
 
 
 # REMOVE STOPWORDS
 # def lemmatization(text):
 # def detect_formality(text):
+
+def repetition(text):
+    if type(text) == list:  # check if list
+        splittext = text  # if its a list use it directly
+    else:
+        splittext = text.split() # other wise split
+
+    counts = Counter(text)
+    repeated_words = {}
+
+    for i, frequency in counts.items():
+        if frequency > 1:
+            repeated_words[i] = frequency
+    return repeated_words
+
 def common_ai_keywords(text):
-        count = 0
+    count = 0
     text = text.lower()
     for i in ai_keywords:
         count += text.count(i)
