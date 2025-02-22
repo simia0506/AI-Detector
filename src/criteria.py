@@ -131,7 +131,7 @@ def sentence_complexity(text):
             tags_set.add(tag)
 
         if len(pos_tags) > 0:
-            complexity_score = len(tags_set) / len(pos_tags)
+            complexity_score = len(tags_set) / len(pos_tags) if len(pos_tags) != 0 else 0  # check for zero
         else:
             complexity_score = 0
         
@@ -144,7 +144,7 @@ def sentence_complexity(text):
 
         for score in complexity_scores:
             total_complexity += score
-        return total_complexity / len(complexity_scores)
+        return total_complexity / len(complexity_scores) if len(complexity_scores) != 0 else 0
 # - AI-generated sentences are often less complex with fewer unique parts of speech (e.g., adjectives, adverbs).
 # - Human-written text is typically more diverse, involving multiple sentence structures and a wide range of vocabulary and grammatical elements.
 
@@ -278,7 +278,7 @@ def lemmatization(text):
     
     # lemm_words = " ".join(lemm_words)
 
-    unique_lemm_words = len(lemm_words) / len(doc)
+    unique_lemm_words = len(lemm_words) / len(doc) if len(doc) != 0 else 0  # check for zero
 
     return unique_lemm_words
 
