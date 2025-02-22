@@ -139,11 +139,6 @@ def sentence_complexity(text):
             total_complexity += score
         return total_complexity / len(complexity_scores)
 
-#  AI-generated sentences are often less complex with fewer unique parts of speech (e.g., adjectives, adverbs).
-# Human-written text is typically more diverse, involving multiple sentence structures and a wide range of vocabulary and grammatical elements.
-
-    return sum(complexity_scores) / len(complexity_scores) if complexity_scores else 0
-
 
 # - AI-generated sentences are often less complex with fewer unique parts of speech (e.g., adjectives, adverbs).
 # - Human-written text is typically more diverse, involving multiple sentence structures and a wide range of vocabulary and grammatical elements.
@@ -227,8 +222,42 @@ def analyze_sentence_structure(text):
         "sentence_complexity_score": sentence_complexity(text)
     }
     
-# def perplexity_level(text):
+def perplexity_level(text):
     # ai has low purplexity (predictable)
+    #tokenize input text
+    tokens = nltk.word_tokenize(text)
+
+    #Generate bigrams from tokens - pairs of 2 words
+    bigram_list = list(bigrams(tokens))
+
+    #create a frequency distrbution of the bigrams
+    fdist = FreqDist(bigram_list)
+
+    #create a bigram model using the Max likelihood estimation (MLE)
+    biggram_model = MLEProbDist(fdist)
+
+    preplexity = 0.0
+    n = len(tokens)
+
+    #loop thorugh tokens starting from the 2nd token
+    for i in range (1, n):
+        prev = tokens [i - 1]
+        curr = tokens [i]
+
+        #get the prob of the bigram
+        prob = bigram_model.prob(prev, curr)
+
+        #if the prob is 0, assign a little value to avoid math.log(0)
+        if prob == 0:
+            prob = 1e-10
+        
+        #add the log of the probability ot the perplexity sum
+        perplexity += math.log(prob)
+    
+    #calculate the final perplexity
+    perplexity = math.exp(-1 * perplexity / n)
+
+    return perplexity
 
 def repetition(text):
     splittext = text.split()
@@ -240,12 +269,66 @@ def repetition(text):
             repeated_words[i] = frequency
     return repeated_words
 
-        
-
 
 # REMOVE STOPWORDS
-# def lemmatization(text):
+def lemmatization(text):
+    def lemmatization(text):
+    doc = nlp(text)
+    lemm_words = []
+
+    for token in doc:
+        if token.is_alpha:
+            lemm_words.append(token.lemma_)
+    
+    # lemm_words = " ".join(lemm_words)
+
+    unique_lemm_words = len(lemm_words) / len(doc)
+
+    return unique_lemm_words
+
 # def detect_formality(text):
+def detect_formality(text):
+    doc = nlp(text)
+
+    formal_words = {"moreover", "therefore", "thus", "hence", "furthermore", "consequently", "notwithstanding", "whereas", "henceforth"}
+    informal_words = {"gonna", "wanna", "gotta", "ya", "dunno", "lemme", "gimme", "kinda", "sorta", "ain't", "bro", "dude", "omg", "lol"}
+
+    word_counter = Counter()
+
+    for token in doc:
+        if token.is_alpha:
+            word_count[token.text.lower()] += 1
+    
+    formal = 0
+    for work in formal_words:
+        if word in word_counter:
+            formal += word_counter[word]
+    
+    informal = 0
+    for word in informal_words:
+        if word in word_counter:
+            informal += word_counter[word]
+    
+    prnoun = 0
+    for token in doc:
+        if token.pos == "PRON":
+            pronoun += 1
+
+    contraction = 0
+    for token in doc:
+        if "'" in token.text:
+            contraction += 1
+
+    formality_score = (formal - informal) - (pronoun + contraction)
+
+    # formality = "Neutral"
+
+    # if formality_score > 2:
+    #     formality = "Formal"
+    # elif formality_score < -2:
+    #     formality = "Informal"
+    
+    return formality_score
 
 def repetition(text):
     if type(text) == list:  # check if list
@@ -262,8 +345,55 @@ def repetition(text):
     return repeated_words
 
 def common_ai_keywords(text):
+
     count = 0
     text = text.lower()
     for i in ai_keywords:
         count += text.count(i)
     return count
+
+def extract_features(text):
+    #dictionary to store the feature values
+    features = {}
+
+    #sentiment
+    sentiment = sentiment_analysis(text)
+    #compund is a single number between -1 and 1 that gives the overall sentiment of the text
+    #-1 => negative, 0 => neutral, +1 => positive
+    feaures["sentinment_compound"] = sentiment["compound"]
+
+    #AI phrase count
+    phrase_count = common_ai_phrases(text)
+    features["ai_phrase_count"] = phrase count
+
+    #AI keyword count
+    features["ai_keyword_count"] = common_ai_keywords(text)
+
+    #Perplexity
+    features["perplexity"] = perplexity_level(text)
+
+    #formality
+    features["formality"] = detect_formality(text)
+
+    #lemmatization score (ratio of unique lemmas)
+    features["lemma_ratio"] = lemmatization(text)
+
+    #sentence length variation
+    features["sentence_length_variation"] = sentence_length_variation(text)
+
+    #sentence complexity
+    features["sentence_complexity"] = sentence_complexity(text)
+
+    #sentence starter variation
+    features["sentence_starter_variation"] = sentence_starter_variation(text)
+
+    #subordinate clause ratio
+    features["subordinate_clause_ratio"] = subordinate_clause_ratio(text)
+
+    #sentence structure pattern
+    features["sentence_structure_pattern"] = sentence_structure_pattern(text)
+
+
+
+
+    return features
