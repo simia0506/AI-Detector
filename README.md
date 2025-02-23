@@ -1,12 +1,13 @@
 # AI-Detector  
-This years theme is Canadian issues and with that in mind we decided to develop an AI  detection app. An app that detects AI-generated text can help prevent the spread of  misleading information, especially in areas like government policies, health advisories, or  community discussions.  
-With the rise of social media, AI-generated content has become increasingly prevalent,  leading to potential threats in terms of fake news and disinformation. This app can be used by Canadians to ensure the authenticity of online content, making it easier to distinguish  between human-generated and AI-generated text.  
+This years theme is Canadian issues and with that in mind we decided to develop an AI  detection app. An app that detects AI-generated text can help prevent the spread of  misleading information, especially in areas like government policies, health advisories, or  community discussions.
+
+With the rise of social media, AI-generated content has become increasingly prevalent,  leading to potential threats in terms of fake news and disinformation. This app can be used by Canadians to ensure the authenticity of online content, making it easier to distinguish  between human-generated and AI-generated text.
 
 With this theme in mind enjoy our AI detection web application. We would like to be  considered for the best AI app category
 
 ## AI-Detection Web Application  
 
-This web app is designed to detect whether a given text is written by AI or a  human. It uses machine learning models to classify text and return a  probability percentage based on the analysis. Additionally it will declare  whether the text is predicted to be human generated or AI-generated, and the  factors that contributed to the computed conclusion, alongside their  importance scores. The backend is built with Python and Flask, and the  frontend allows users to input text and get instant results.  
+This web app is designed to detect whether a given text is written by AI or a human. It uses machine learning models to classify text and return a probability percentage based on the analysis. Additionally it will declare whether the text is predicted to be human generated or AI-generated, and the factors that contributed to the computed conclusion, alongside their importance scores. The backend is built with Python and Flask, and the  frontend allows users to input text and get instant results.  
 
 ## Features  
 Classifies text as AI-generated or human-written.  
@@ -78,7 +79,7 @@ This will start the server, and you should see output similar to this:  
 
  ## Usage
  1. Enter a passage of text into the texbox  
- 2. Click "Analyze Text" to get the probability percentage indicating how  likely it is that the text is AI-generated, and the conclusion on whether it  is human or AI generated
+ 2. Click "Detect AI" to get the probability percentage indicating how  likely it is that the text is AI-generated, and the conclusion on whether it  is human or AI generated
  3. The results will be displayed in percentage format  
 
 ## Folder Structure
