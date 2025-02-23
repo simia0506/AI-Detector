@@ -6,16 +6,14 @@
     <title>AI Detection</title>
 </head>
 <body>
-    <h1>AI Text Detection</h1>
-
-    <!-- Form to input text for prediction -->
+    <h1>AI Content Detection</h1>
     <form method="POST">
-        <textarea name="user_input" rows="6" cols="50" placeholder="Enter text here..."></textarea><br><br>
+        <textarea name="user_input" rows="4" cols="50">{{ request.form['user_input'] if request.form['user_input'] else '' }}</textarea>
         <button type="submit">Analyze Text</button>
     </form>
 
     {% if result %}
-        <h2>{{ result }}</h2>  <!-- Display the result if available -->
+        <p>{{ result }}</p>
     {% endif %}
 </body>
 </html>
