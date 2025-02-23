@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Detection Result</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>AI Text Detection Result</h1>
-    <p>{{ result }}</p>  <!-- Show the result -->
+    <header class="header">
+        <h1>AI Text Detection Result</h1>
+    </header>
 
-    <a href="/">Go Back</a>  <!-- Link to go back to the input page -->
+    <div class="result-container">
+        <p>{{ result }}</p>
+        <a href="/">Go Back</a>
+    </div>
 </body>
 </html>
