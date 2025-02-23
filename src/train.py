@@ -305,9 +305,24 @@ def predict_with_model(model, features):
     
     # Predict class probabilities
     probability = model.predict_proba(features)
-    
-    return float(probability[0][1])  # Convert to float to avoid TypeError
+    prediction = model.predict(features)
 
+    # Generate a report on the feature importance or values
+    feature_report = {}
+    feature_names = list(features.columns)  # Column names of the features
+    feature_importance = model.feature_importances_  # Get feature importances
+
+    for i, feature_name in enumerate(feature_names):
+        feature_report[feature_name] = {
+            "value": features[feature_name].iloc[0],
+            "importance": feature_importance[i]
+        }
+    
+    # Normalize the probability to percentage
+    ai_probability = float(probability[0][1]) * 100
+
+    # Return the prediction, probability, and feature report
+    return ai_probability, prediction[0], feature_report
 process_batch(batch_size=100)
 # Load the pre-trained model from file
 # def load_model():

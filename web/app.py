@@ -14,32 +14,32 @@ app = Flask(__name__)
 # extract_features = joblib.load('feature_extraction_function.pkl')
 # Load the model at the start of the application
 model = load_model()  # Load the pre-trained model once when the app starts
-
 @app.route("/", methods=["GET", "POST"])
 def home():
-    result = None  # Initialize result to None on page load
+    result = None
+    feature_report = None
     if request.method == "POST":
-        user_input = request.form["user_input"]  # Capturing the user input
-
-        if user_input:  # If the user has entered something new
-            # Extract features from the user input
-            features = extract_features(user_input)
-            
-            # Predict using the loaded model
-            probability = predict_with_model(model, features)
-            features_df = pd.DataFrame([features])
-            
-            # Format the result as a percentage
-            result = f"Probability that the text is AI-generated: {round(probability, 2) * 100}%"
+        user_input = request.form["user_input"]
+        
+        # Extract features from the user input
+        features = extract_features(user_input)
+        
+        # Predict using the loaded model
+        ai_probability, prediction, feature_report = predict_with_model(model, features)
+        
+        # Format the result as a percentage
+        result = f"Probability that the text is AI-generated: {round(ai_probability, 2)}%"
+        
+        # Prepare feature report (for display)
+        explanation = ""
+        if prediction == 1:
+            explanation += "This text is predicted to be AI-generated. Here are the factors that contributed to this conclusion:\n"
         else:
-            # If there's no input, keep result as None (clear the result)
-            result = None
+            explanation += "This text is predicted to be Human-generated. Here are the factors that contributed to this conclusion:\n"
+        
+        for feature, details in feature_report.items():
+            explanation += f"- {feature}: Value = {details['value']}, Importance = {details['importance']}\n"
 
-    # Render the index.html template and pass the result to it
-    return render_template("index.html", result=result)
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8080)
+        feature_report = explanation
+    
+    return render_template("index.html", result=result, explanation=feature_report)
