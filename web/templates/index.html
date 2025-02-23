@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the AI-Detector</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>AI Detection</title>
 </head>
 <body>
-    <h1>Welcome to the AI-Detector :P</h1>
+    <h1>AI Text Detection</h1>
+
+    <!-- Form to input text for prediction -->
+    <form method="POST">
+        <textarea name="user_input" rows="6" cols="50" placeholder="Enter text here..."></textarea><br><br>
+        <button type="submit">Analyze Text</button>
+    </form>
+
+    {% if result %}
+        <h2>{{ result }}</h2>  <!-- Display the result if available -->
+    {% endif %}
 </body>
 </html>

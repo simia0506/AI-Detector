@@ -14,7 +14,8 @@ from nltk import pos_tag
 
 # for repetition
 from collections import Counter
-from preprocess import preprocess_text, seperate_by_sentence
+from src.preprocess import preprocess_text, seperate_by_sentence
+
 import math
 from nltk.util import bigrams
 from nltk import FreqDist
@@ -157,7 +158,7 @@ def sentence_starter_variation(text):
         words = word_tokenize(sentence)
         if words:
             first_word = words[0].lower()
-            tagged_pos = pos_tag([first_word])[0][1]  # Renamed to 'tagged_pos'
+            tagged_pos = pos_tag([first_word])[0][1]
 
             if tagged_pos in ["PRP", "PRP$", "WP", "WP$"]:  # Pronoun
                 start_types["pronoun"] += 1
@@ -171,11 +172,10 @@ def sentence_starter_variation(text):
                 start_types["conjunction"] += 1
 
     total_sentences = len(sentences)
-    result = {}
-    for start_type, count in start_types.items():
-        result[start_type] = count / total_sentences  # Calculating the ratio
+    result = sum(start_types.values()) / total_sentences  # Sum of the ratios (this is just one possible approach)
 
     return result
+
 # - AI-generated content typically has fewer subordinate clauses (dependent clauses), making sentences more direct and less complex.
 # - Humans use more subordinate clauses to create nuanced, complex thoughts, offering a greater variety of sentence types.
 def subordinate_clause_ratio(text):
@@ -418,6 +418,33 @@ def common_ai_keywords(text):
 
 #     return features
 
+# def extract_features(text):
+#     # Raw text for features computed before stopword removal.
+#     raw_text = text
+    
+#     # Process text: preprocess_text returns a list of tokens (stopwords removed).
+#     processed_tokens = preprocess_text(text)
+#     # Join tokens into a string for functions that expect a string.
+#     processed_text = " ".join(processed_tokens)
+    
+#     features = {}
+    
+#     # Features computed on raw (unprocessed) text:
+#     features["ai_phrase_count"] = common_ai_phrases(raw_text)  # Compute AI phrase count on raw text
+#     features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
+#     features["sentence_length_variation"] = sentence_length_variation(raw_text)
+#     features["sentence_complexity"] = sentence_complexity(raw_text)
+#     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
+#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
+#     features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
+#     features["perplexity"] = perplexity_level(raw_text)
+    
+#     # Features computed on processed text (after stopword removal):
+#     features["ai_keyword_count"] = common_ai_keywords(processed_text)
+#     features["lemma_ratio"] = lemmatization(processed_text)
+#     features["formality"] = detect_formality(processed_text)
+    
+#     return features
 def extract_features(text):
     # Raw text for features computed before stopword removal.
     raw_text = text
@@ -436,7 +463,14 @@ def extract_features(text):
     features["sentence_complexity"] = sentence_complexity(raw_text)
     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
-    features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
+    
+    # Handle sentence_structure_pattern carefully
+    sentence_structure_result = sentence_structure_pattern(raw_text)
+    if isinstance(sentence_structure_result, dict):
+        # Assuming sentence_structure_pattern returns a dict, extract the correct value (e.g., "pattern_score")
+        sentence_structure_result = sentence_structure_result.get("pattern_score", 0)  # Default to 0 if not found
+    
+    features["sentence_structure_pattern"] = sentence_structure_result  # Now ensure this is a number
     features["perplexity"] = perplexity_level(raw_text)
     
     # Features computed on processed text (after stopword removal):

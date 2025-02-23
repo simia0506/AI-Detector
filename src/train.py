@@ -226,8 +226,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, accuracy_score
 import joblib  # To save the trained model
-from criteria import extract_features  # Import your feature extraction function
-
+#from criteria import extract_features  # Import your feature extraction function
+from src.criteria import extract_features
 # Load the dataset
 df = pd.read_csv('../ai_vs_human_dataset.csv')
 
@@ -285,4 +285,43 @@ def process_batch(batch_size=100):
     joblib.dump(extract_features, 'feature_extraction_function.pkl')
 
 # Process a batch of 100 samples at a time
+
+
+def load_model():
+    model = joblib.load('ai_detection_model.pkl')  # Load the trained model
+    return model
+
+# def predict_with_model(model, features):
+#     # Assuming features is a DataFrame or list of numerical features
+#     prediction = model.predict(features)  # Predict class
+#     probability = model.predict_proba(features)  # Probability for each class
+#     return probability[0][1]  # Assuming class 1 is "AI"
+def predict_with_model(model, features):
+    # Convert features to a 2D array if it's not already
+    if isinstance(features, dict):  # If features is a dictionary, convert to a DataFrame
+        features = pd.DataFrame([features])
+    elif isinstance(features, list) or isinstance(features, np.ndarray):  
+        features = np.array(features).reshape(1, -1)  # Ensure it's a 2D array
+    
+    # Predict class probabilities
+    probability = model.predict_proba(features)
+    
+    return float(probability[0][1])  # Convert to float to avoid TypeError
+
 process_batch(batch_size=100)
+# Load the pre-trained model from file
+# def load_model():
+#     # Replace with actual model path
+#     model_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'src', 'ai_detection_model.pkl')
+#     return joblib.load(model_path)
+
+# # Make predictions using the loaded model
+# def predict_with_model(model, input_text):
+#     # Extract features from the input text
+#     features = extract_features(input_text)
+    
+#     # Make a prediction with the model
+#     prediction = model.predict([features])  # Assuming the model expects a list of features
+#     probability = model.predict_proba([features])[0][1]  # Probability of the positive class (AI-generated)
+    
+#     return probability
