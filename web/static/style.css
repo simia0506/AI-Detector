@@ -1,20 +1,17 @@
-/* General Body Styles */
 body {
     font-family: 'Times New Roman', Times, serif;
     margin: 0;
     background-color: #f0f0f0;
 }
 
-/* Header Style */
 .header {
-    background-color: #FFB6C1; /* Soft pink color */
+    background-color: #FFB6C1; 
     color: white;
     text-align: center;
     padding: 20px 0;
     width: 100%;
 }
 
-/* Blurb Section */
 .blurb {
     text-align: center;
     font-size: 1.1em;
@@ -23,7 +20,7 @@ body {
     padding: 10px;
 }
 
-/* Form Container Style */
+
 .form-container {
     padding: 50px 20px;
     text-align: center;
@@ -68,23 +65,23 @@ button:hover {
 }
 
 pre {
-    white-space: pre-wrap; /* Ensures the text is wrapped */
+    white-space: pre-wrap; 
     word-wrap: break-word;
     background-color: #f7f7f7;
     padding: 10px;
     border-radius: 5px;
     font-size: 0.9em;
     color: #333;
-    text-align: left; /* Ensures left-alignment */
-    margin: 0; /* Remove extra margin */
+    text-align: left;
+    margin: 0; 
 }
 
-/* Footer Style */
+
 footer {
     text-align: center;
     margin-top: 40px;
     padding: 20px;
-    background-color: #FFB6C1; /* Soft pink color */
+    background-color: #FFB6C1; 
 }
 
 footer p {

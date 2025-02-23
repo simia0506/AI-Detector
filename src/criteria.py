@@ -350,127 +350,31 @@ def common_ai_keywords(text):
         count += text.count(i)
     return count
 
-# def extract_features(text):
-#     #dictionary to store the feature values
-#     features = {}
-
-#     #sentiment
-#     sentiment = sentiment_analysis(text)
-#     #compund is a single number between -1 and 1 that gives the overall sentiment of the text
-#     #-1 => negative, 0 => neutral, +1 => positive
-#     features["sentinment_compound"] = sentiment["compound"]
-
-#     #AI phrase count
-#     phrase_count = common_ai_phrases(text)
-#     features["ai_phrase_count"] = phrase_count
-
-#     #AI keyword count
-#     features["ai_keyword_count"] = common_ai_keywords(text)
-
-#     #Perplexity
-#     features["perplexity"] = perplexity_level(text)
-
-#     #formality
-#     features["formality"] = detect_formality(text)
-
-#     #lemmatization score (ratio of unique lemmas)
-#     features["lemma_ratio"] = lemmatization(text)
-
-#     #sentence length variation
-#     features["sentence_length_variation"] = sentence_length_variation(text)
-
-#     #sentence complexity
-#     features["sentence_complexity"] = sentence_complexity(text)
-
-#     #sentence starter variation
-#     features["sentence_starter_variation"] = sentence_starter_variation(text)
-
-#     #subordinate clause ratio
-#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(text)
-
-#     #sentence structure pattern
-#     features["sentence_structure_pattern"] = sentence_structure_pattern(text)
-
-# def extract_features(text):
-#     # First, define raw text and processed text (after stopword removal)
-#     raw_text = text
-#     processed_text = preprocess_text(text)  # Assumes this function removes stopwords and returns a clean string
-
-#     features = {}
-
-#     # Features computed on the raw (unprocessed) text:
-#     features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
-#     features["sentence_length_variation"] = sentence_length_variation(raw_text)
-#     features["sentence_complexity"] = sentence_complexity(raw_text)
-#     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
-#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
-#     features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
-#     features["perplexity"] = perplexity_level(raw_text)
-#     features["ai_phrase_count"] = common_ai_phrases(raw_text)
-
-#     # Features computed on the processed text (after stopword removal):
-#     features["ai_keyword_count"] = common_ai_keywords(processed_text)
-#     features["lemma_ratio"] = lemmatization(processed_text)
-#     features["formality"] = detect_formality(processed_text)
-
-#     return features
-
-
-#     return features
-
-# def extract_features(text):
-#     # Raw text for features computed before stopword removal.
-#     raw_text = text
-    
-#     # Process text: preprocess_text returns a list of tokens (stopwords removed).
-#     processed_tokens = preprocess_text(text)
-#     # Join tokens into a string for functions that expect a string.
-#     processed_text = " ".join(processed_tokens)
-    
-#     features = {}
-    
-#     # Features computed on raw (unprocessed) text:
-#     features["ai_phrase_count"] = common_ai_phrases(raw_text)  # Compute AI phrase count on raw text
-#     features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
-#     features["sentence_length_variation"] = sentence_length_variation(raw_text)
-#     features["sentence_complexity"] = sentence_complexity(raw_text)
-#     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
-#     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
-#     features["sentence_structure_pattern"] = sentence_structure_pattern(raw_text)
-#     features["perplexity"] = perplexity_level(raw_text)
-    
-#     # Features computed on processed text (after stopword removal):
-#     features["ai_keyword_count"] = common_ai_keywords(processed_text)
-#     features["lemma_ratio"] = lemmatization(processed_text)
-#     features["formality"] = detect_formality(processed_text)
-    
-#     return features
 def extract_features(text):
     # Raw text for features computed before stopword removal.
     raw_text = text
     
-    # Process text: preprocess_text returns a list of tokens (stopwords removed).
     processed_tokens = preprocess_text(text)
-    # Join tokens into a string for functions that expect a string.
+    
     processed_text = " ".join(processed_tokens)
     
     features = {}
     
     # Features computed on raw (unprocessed) text:
-    features["ai_phrase_count"] = common_ai_phrases(raw_text)  # Compute AI phrase count on raw text
+    features["ai_phrase_count"] = common_ai_phrases(raw_text)  
     features["sentiment_compound"] = sentiment_analysis(raw_text)["compound"]
     features["sentence_length_variation"] = sentence_length_variation(raw_text)
     features["sentence_complexity"] = sentence_complexity(raw_text)
     features["sentence_starter_variation"] = sentence_starter_variation(raw_text)
     features["subordinate_clause_ratio"] = subordinate_clause_ratio(raw_text)
     
-    # Handle sentence_structure_pattern carefully
+    
     sentence_structure_result = sentence_structure_pattern(raw_text)
     if isinstance(sentence_structure_result, dict):
-        # Assuming sentence_structure_pattern returns a dict, extract the correct value (e.g., "pattern_score")
+        
         sentence_structure_result = sentence_structure_result.get("pattern_score", 0)  # Default to 0 if not found
     
-    features["sentence_structure_pattern"] = sentence_structure_result  # Now ensure this is a number
+    features["sentence_structure_pattern"] = sentence_structure_result  
     features["perplexity"] = perplexity_level(raw_text)
     
     # Features computed on processed text (after stopword removal):
@@ -481,32 +385,30 @@ def extract_features(text):
     return features
 
 
-# UPDATE THIS LATER
+
 def is_ai_generated(text):
     # Extract features from the text
     features = extract_features(text)
     
-    # Define a scoring system based on feature values
-    # You can adjust the weights based on empirical analysis or experimentation
     score = 0
 
-    # Example weights: These should be fine-tuned for your model
-    score += features["ai_phrase_count"] * 0.2  # AI phrase count
-    score += features["sentiment_compound"] * 0.1  # Sentiment score (neutral or positive for AI-generated)
-    score += features["sentence_length_variation"] * 0.05  # Less variation may indicate AI
-    score += features["sentence_complexity"] * 0.15  # Simpler sentences may indicate AI
-    score += features["sentence_starter_variation"] * 0.1  # Less variety in sentence starters may indicate AI
-    score += features["subordinate_clause_ratio"] * 0.1  # Fewer subordinate clauses could indicate AI
-    score += features["sentence_structure_pattern"] * 0.05  # More repetitive sentence structure may indicate AI
-    score += features["perplexity"] * 0.05  # AI text tends to have lower perplexity
-    score += features["ai_keyword_count"] * 0.1  # Count of AI-specific keywords
-    score += features["lemma_ratio"] * 0.05  # Unique lemmas ratio
-    score += features["formality"] * 0.05  # Formality score (AI text may be more formal)
+    
+    score += features["ai_phrase_count"] * 0.2  
+    score += features["sentiment_compound"] * 0.1  
+    score += features["sentence_length_variation"] * 0.05  
+    score += features["sentence_complexity"] * 0.15  
+    score += features["sentence_starter_variation"] * 0.1  
+    score += features["subordinate_clause_ratio"] * 0.1  
+    score += features["sentence_structure_pattern"] * 0.05  
+    score += features["perplexity"] * 0.05  
+    score += features["ai_keyword_count"] * 0.1  
+    score += features["lemma_ratio"] * 0.05  
+    score += features["formality"] * 0.05  
 
-    # Normalize score to be between 0 and 100 (as percentage)
-    normalized_score = (score / 2)  # You may need to adjust this based on the feature weightings
+    
+    normalized_score = (score / 2)  
 
-    # Ensure score is between 0 and 100
+    
     percentage = max(0, min(100, normalized_score))
 
     return percentage

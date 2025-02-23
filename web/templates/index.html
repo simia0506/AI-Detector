@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Detection</title>
-    <!-- Link to external CSS in static folder -->
+   
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -12,12 +12,12 @@
         <h1>AI Content Detection</h1>
     </header>
 
-    <!-- Blurb Section -->
+
     <div class="blurb">
         <p>In this day and age, it’s easy to fall victim to AI-generated content. As artificial intelligence becomes more sophisticated, distinguishing between human and machine-created content is increasingly difficult. This tool aims to raise awareness and help identify AI-generated text, providing insights into how to recognize and understand the impact of these technologies.</p>
     </div>
 
-    <!-- Form Section -->
+  
     <div class="form-container">
         <form method="POST">
             <textarea name="user_input" rows="4" placeholder="Enter text to analyze...">{{ request.form['user_input'] if request.form['user_input'] else '' }}</textarea>
@@ -25,23 +25,16 @@
         </form>
     </div>
 
-    <!-- Result Section (Only shows after button click)
+  
     {% if result %}
         <div class="result-container">
-            <p><strong>Probability that the text is AI-generated:</strong> {{ result.probability }}%</p>
-            <h3>Explanation:</h3>
-            <pre>{{ explanation }}</pre>
-        </div>
-    {% endif %} -->
-    {% if result %}
-        <div class="result-container">
-            <p><strong>{{ result }}</strong></p>  <!-- This will display the probability text -->
+            <p><strong>{{ result }}</strong></p>  
             <h3>Explanation:</h3>
             <pre>{{ explanation }}</pre>
         </div>
     {% endif %}
 
-    <!-- Footer Section -->
+   
     <footer>
         <p>Created with love. <a href="#">Back to Top</a></p>
     </footer>
